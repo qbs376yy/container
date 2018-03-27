@@ -1,5 +1,6 @@
 # Go Container Extension
 
+# Description
 
 The go container is an extension with a bunch of packages
 like single list, dict, list, stack which will provide much 
@@ -19,3 +20,16 @@ container in golang is not that adequate with this requirement.
 Note this is only for golang programming practice but rather than
 the formal software development, so if possible, the more testing
 on each container or data structure is needed before any use case.
+
+# How to use the package?
+
+$ go get github.com/qbs376yy/container/src/[container]
+import (
+	[container supported]
+)
+
+
+# License Note
+
+All rights reserved and Use of this source code is governed by
+a BSD-style license that can be found in the LICENSE file.
