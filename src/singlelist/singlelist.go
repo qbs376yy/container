@@ -79,6 +79,8 @@ func (l *List) IsEmpty() bool {
 	}
 }
 
+// The length of the list wont walk through the last nil node.
+// It only marks the numbers of the nodes within data included.
 func (l *List) Length() (length int) {
 	for length = 0; l.Next != nil; l = l.Next {
 		length++
@@ -230,50 +232,118 @@ func (l *List) Reverse() *Node {
 	return l
 }
 
-
-func (l *List)Swap(node *Node) {
-	value := l.Data
-	l.Data = node.Data
-	node.Data = value
+// Do a comparsion bewteen v1 and v2 with any data type.
+// The assumption is once v1 is larger than v2, then true
+// would be returned otherwise false is returned.
+func cmp(v1, v2 interface{}) bool {
+	switch v1.(type) {
+	case int:
+		return v1.(int) >= v2.(int)
+	case int64:
+		return v1.(int64) >= v2.(int64)
+	case float32:
+		return v1.(float32) >= v2.(float32)
+	case float64:
+		return v1.(float64) >= v2.(float64)
+	case string:
+		if strings.Compare(v1.(string), v2.(string)) != 0 {
+			return false
+		}
+	default:
+		panic("Unsupport data type in the list")
+	}
+	return false
 }
 
-func (l *List) QuickSort(begin, end int) {
+// Swap the data between the two nodes.
+func swap(p *Node, q *Node) {
+	tmp := p.Data
+	p.Data = q.Data
+	q.Data = tmp
+}
+
+// Qucik sort implementations. The tail should be always nil if
+// you want to sort the entire list otherwise the special node
+// needs to be provided. Parameter 'mode' is using to determine
+// the sequence of the list is ascend or descend.
+func (l *List) QuickSort(tail *Node, mode int) {
+	// Should find a bound node to terminate the recrusive call
+	// And once the walk-through of the head reaches the tail node
+	// The sort process is coming to the end. Note neither the
+	// single node nor the nil node would be used to sort.
+	if l == nil ||
+		l.Next == nil ||
+		l.Data == nil ||
+		l == tail {
+		return
+	}
+
+	// Define two temp nodes in the each sort walk-through process
+	// Specifically, p is walking behind the q which is using to
+	// locate the expected node(whose value is larger or smaller than
+	// the base one, here the base node 'key' will always be the first
+	// node). Once the value in q is located, then we should switch
+	// out to have p and q swapped with their values, this would be
+	// continued until q is coming to the end of the list. In which
+	// case, one partition then is completed.
+	p := l
+	q := l.Next
+	key := l.Data
+
+	for q != nil && q.Data != nil {
+		switch key.(type) {
+		case int, int64, float32, float64:
+			if cmp(key, q.Data) &&
+				mode == ASCEND {
+				p = p.Next
+				swap(p, q)
+			}
+		case string:
+			fmt.Println("TBD..")
+		}
+		q = q.Next
+	}
+
+	// Now the walk-through is done as the p is to the end of the
+	// node which contains the data of last expecting one(larger or
+	// smaller) than the base 'key' value.
+	swap(l, p)
+
+	// Recrusively to call the function partition by partition.
+	l.QuickSort(p, mode)
+	p.Next.QuickSort(nil, mode)
+
+}
+
+// Select sort implementations. Parameter 'mode' is using to determine
+// the sequence of the list is ascend or descend.
+func (l *List) SelectSort(mode int) {
 	if l == nil || l.Next == nil {
 		return
 	}
 
-	p := l
-	q := l
+	for p := l; p.Next != nil; p = p.Next {
+		base := p
+		for q := p.Next; q.Next != nil; q = q.Next {
 
-	if (begin <= end) {
-   		key := l.Data
-   		i := begin
-		j := begin + 1
-
-		for j <= end {
-			for j <= end {
-				if q.Data.(int) >= key.(int) {
-					j++
-					q = q.Next
-				} else {
-					fmt.Println("In the quick sort:", q.Data)
-					break
-				}
-			}
-
-			if j <= end {
-				i++
-				p = p.Next
-				p.Swap(q)
-				j++
+			// Here we are going to select the largest or smallest node
+			// Once found, the data in base node would be exchanged with
+			// one we are locating. Afterwards, the base could be used
+			// to assign back onto the orignal list with the p goes forward. 
+			if cmp(base.Data, q.Data) &&
+				mode == ASCEND {
+				fmt.Println("In the SelectSort", base.Data, q.Data)
+				swap(q, base)
 			}
 		}
 
-	l.Swap(p)
-   	l.QuickSort(begin, i-1)
-	p.Next.QuickSort(i+1, end)
+		// In case the node selected is not synced into the one in the original
+		// list, here will confirm they are sharing the same value and would
+		// swap if the data is not equal in between.
+		if !reflect.DeepEqual(base.Data, p.Data) {
+			swap(base, p)
+		}
 	}
-
 }
 
 // Walk through the list and then print it out.
