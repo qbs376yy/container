@@ -13,7 +13,6 @@
 // opeartion on the function is to call.Error message will also report
 // if it detect the disallowed operation is being issued.
 
-
 package singlelist
 
 import (
@@ -56,7 +55,7 @@ func InitList() (head *Node) {
 	return
 }
 
-// To extend a list with new node adding in. 
+// To extend a list with new node adding in.
 // Return nil if errors appear.
 func (l *List) AddNode(data interface{}) (err error) {
 	if l == nil {
@@ -294,8 +293,8 @@ func (l *List) QuickSort(tail *Node, mode int) {
 	for q != nil && q.Data != nil {
 		switch key.(type) {
 		case int, int64, float32, float64:
-			if cmp(key, q.Data) &&
-				mode == ASCEND {
+			res := cmp(key, q.Data)
+			if res && mode == ASCEND || !res && mode == DESCEND {
 				p = p.Next
 				swap(p, q)
 			}
@@ -330,10 +329,9 @@ func (l *List) SelectSort(mode int) {
 			// Here we are going to select the largest or smallest node
 			// Once found, the data in base node would be exchanged with
 			// one we are locating. Afterwards, the base could be used
-			// to assign back onto the orignal list with the p goes forward. 
-			if cmp(base.Data, q.Data) &&
-				mode == ASCEND {
-				fmt.Println("In the SelectSort", base.Data, q.Data)
+			// to assign back onto the orignal list with the p goes forward.
+			res := cmp(base.Data, q.Data)
+			if res && mode == ASCEND || !res && mode == DESCEND {
 				swap(q, base)
 			}
 		}

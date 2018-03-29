@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	Head *singlelist.Node
+	Head    *singlelist.Node
 	revList *singlelist.Node
 )
 
-func CreateList() (*singlelist.List) {
+func createList() *singlelist.List {
 	Head = singlelist.InitList()
 	Cur := Head
 	for i := 0; i < 5; i++ {
@@ -22,11 +22,10 @@ func CreateList() (*singlelist.List) {
 	}
 
 	return Head
-
 }
 
 func ExampleList_Create() {
-	Head = CreateList()
+	Head = createList()
 	Head.DumpList()
 
 	// Output:
@@ -138,10 +137,10 @@ func ExampleList_SelectSort() {
 	revList.DumpList()
 
 	// Output:
-	// 0
-	// 1
-	// 2
-	// 3
 	// 20
+	// 3
+	// 2
+	// 1
+	// 0
 
 }

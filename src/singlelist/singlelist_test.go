@@ -5,131 +5,162 @@
 package singlelist_test
 
 import (
-	"fmt"
+	_ "fmt"
 	"singlelist"
 	"testing"
 )
 
-var (
-	Head *singlelist.Node
-	revList *singlelist.Node
-)
-
-func CreateList() (*singlelist.List) {
-	Head = singlelist.InitList()
-	Cur := Head
-	for i := 0; i < 5; i++ {
-		Cur.AddNode(i)
+func CreateList(n int) (head *singlelist.List) {
+	head = singlelist.InitList()
+	cur := head
+	for i := 0; i < n; i++ {
+		cur.AddNode(i)
 	}
 
-	return Head
-
+	return
 }
 
 func TestCreateList(t *testing.T) {
-	Head = CreateList()
+	head := CreateList(5)
 
-	length := Head.Length()
+	length := head.Length()
 	if length != 5 {
 		t.Errorf("Length expected: 5, got: %d", length)
 	}
 
-	is_empty := Head.IsEmpty()
+	is_empty := head.IsEmpty()
 	if is_empty {
 		t.Error("List is empty")
 	}
 }
 
-func TestListInsert() {
+func TestListInsert(t *testing.T) {
+	head := CreateList(6)
 
-	if err := Head.InsertAfter(3, 20); err != nil {
-		panic(err)
+	if err := head.InsertAfter(3, 20); err != nil {
+		t.Fatalf("Error occured during the insertion in the list: %s", err)
 	} else {
-		fmt.Println(Head.Length())
-		Head.DumpList()
-	}
-	fmt.Println("Matched value index is", Head.FindMatchedValue(4))
+		if length := head.Length(); length != 7 {
+			t.Errorf("Length expected: 7, got: %d", length)
+		}
 
-	// Output:
-	// 6
-	// 0
-	// 1
-	// 2
-	// 3
-	// 20
-	// 4
-	// Matched value index is 5
-}
-
-func ExampleList_Delete() {
-
-	if err := Head.Delete(6); err != nil {
-		panic(err)
-	} else {
-		Head.DumpList()
+		if index := head.FindMatchedValue(20); index != 4 {
+			t.Errorf("index of value 20 expected: 4, got: %d", index)
+		}
 	}
 
-	// Output:
-	// 0
-	// 1
-	// 2
-	// 3
-	// 20
+	if err := head.InsertBefore(3, 20); err != nil {
+		t.Fatalf("Error occured during the insertion in the list: %s", err)
+	} else {
+		if length := head.Length(); length != 8 {
+			t.Errorf("Length expected: 8, got: %d", length)
+		}
+
+		if index := head.FindMatchedValue(20); index != 4 {
+			t.Errorf("index of value 20 expected: 4, got: %d", index)
+		}
+	}
 }
 
-func ExampleList_Find() {
-	fmt.Println("data located is:", Head.Find(4))
+func TestListDelete(t *testing.T) {
+	head := CreateList(2)
 
-	// Output:
-	// data located is: 3
+	if err := head.Delete(1); err != nil {
+		t.Fatalf("Error occured during the deletion: %s", err)
+	} else {
+		if length := head.Length(); length != 0 {
+			t.Errorf("Length expected: 0, got: %d", length)
+		}
+	}
+}
+
+func TestListFind(t *testing.T) {
+	head := CreateList(5)
+
+	if index := head.Find(4); index != 3 {
+		t.Errorf("Index expected: 3, got: %d", index)
+	}
+}
+
+func TestListReverse(t *testing.T) {
+	head := CreateList(3)
+
+	tail := head.Reverse()
+	if length := tail.Length(); length != 3 {
+		t.Errorf("Length reversed expected: 3, got :%d", length)
+	}
+
+	if data := tail.Data; data != 2 {
+		t.Errorf("Data of reversal head node expected: 2, got: %d", data)
+	}
+
+	if data := head.Next.Data; data != nil {
+		t.Errorf("Data of original head.next node after reverse expected: <nil>, got: %d", data)
+	}
+
+	if data := tail.Next.Data; data != 1 {
+		t.Errorf("Data of reversal head.next node expected: 1, got: %d", data)
+	}
+}
+
+func TestListQuickSort(t *testing.T) {
+	head := CreateList(5)
+
+	head.QuickSort(nil, singlelist.ASCEND)
+	if data := head.Data; data != 0 {
+		t.Errorf("first smallest data after sort expected: 0, got: %d", data)
+	}
+
+	if data := head.Next.Data; data != 1 {
+		t.Errorf("Second smallest data after sort expected: 1, got: %d", data)
+	}
+
+	head.QuickSort(nil, singlelist.DESCEND)
+	if data := head.Data; data != 4 {
+		t.Errorf("First largest data after descend sort expected: 4, got: %d", data)
+	}
+
+	if data := head.Next.Data; data != 3 {
+		t.Errorf("Second largest data after descend sort expected: 3, got: %d", data)
+	}
 
 }
 
-func ExampleList_Reverse() {
-	revList = Head.Reverse()
-	fmt.Println(revList.Length())
-	fmt.Println("Data of original head node is:", Head.Data)
-	fmt.Println("Data of reversal head node is:", revList.Data)
-	fmt.Println("Data of original head.next node is:", Head.Next.Data)
-	fmt.Println("Data of reversal head.next node is:", revList.Next.Data)
-	revList.DumpList()
+func TestListSelectSort(t *testing.T) {
+	head := CreateList(5)
 
-	// Output:
-	// 5
-	// Data of original head node is: 0
-	// Data of reversal head node is: 20
-	// Data of original head.next node is: <nil>
-	// Data of reversal head.next node is: 3
-	// 20
-	// 3
-	// 2
-	// 1
-	// 0
+	head.SelectSort(singlelist.ASCEND)
+	if data := head.Data; data != 0 {
+		t.Errorf("first smallest data after sort expected: 0, got: %d", data)
+	}
+
+	if data := head.Next.Data; data != 1 {
+		t.Errorf("Second smallest data after sort expected: 1, got: %d", data)
+	}
+
+	head.SelectSort(singlelist.DESCEND)
+	if data := head.Data; data != 4 {
+		t.Errorf("First largest data after descend sort expected: 4, got: %d", data)
+	}
+
+	if data := head.Next.Data; data != 3 {
+		t.Errorf("Second largest data after descend sort expected: 3, got: %d", data)
+	}
 }
 
-func ExampleList_QuickSort() {
+func BenchmarkQuickSort(b *testing.B) {
+	head := CreateList(10000)
 
-	revList.QuickSort(nil, singlelist.ASCEND)
-	revList.DumpList()
-
-	// Output:
-	// 0
-	// 1
-	// 2
-	// 3
-	// 20
+	for i := 0; i < b.N; i++ {
+		head.QuickSort(nil, singlelist.ASCEND)
+	}
 }
 
-func ExampleList_SelectSort() {
+func BenchmarkSelectSort(b *testing.B) {
+	head := CreateList(10000)
 
-	revList.SelectSort(singlelist.DESCEND)
-	revList.DumpList()
-
-	// Output:
-	// 0
-	// 1
-	// 2
-	// 3
-	// 20
+	for i := 0; i < b.N; i++ {
+		head.SelectSort(singlelist.ASCEND)
+	}
 
 }
