@@ -1,3 +1,15 @@
+// Copyright 2009 The Go Authors. All rights reserved.
+
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// List impletments a bunch of operations which are pretty
+// alike what other languages already made. It is based on
+// the Go slice data type to support different API that will
+// be feasible to be exported for the data management or
+// data organization. And the data stores the List would be
+// handled with any type.
+
 package list
 
 import (
@@ -7,7 +19,8 @@ import (
 	"strings"
 )
 
-// List base structure, it is able to store any type of element.
+// List is based on the low layer slice,
+// it is able to store any type of element.
 type List []interface{}
 
 // Return new List with specified length, which actually is a slice.
@@ -22,12 +35,11 @@ func MakeList(length int, cap int) List {
 
 // Error type for the operations towards the List
 var (
-	ErrRemoveFromEmptyList = errors.New("Error to remove element from an empty list")
+	ErrRemoveFromEmptyList      = errors.New("Error to remove element from an empty list")
 	ErrAppendExistValueIntoList = errors.New("Error to append an existed element into the list")
-	ErrExtendWithNoList = errors.New("Error to extend non-list values into a list")
-	ErrIndexNotFound = errors.New("Error to locate the index of the specified value")
+	ErrExtendWithNoList         = errors.New("Error to extend non-list values into a list")
+	ErrIndexNotFound            = errors.New("Error to locate the index of the specified value")
 )
-
 
 // Adds elements to the end of the specified list.
 // Note since the builtin append() will return a new
@@ -78,13 +90,13 @@ func (list *List) Delete(index int) error {
 // Extend one list with the contents of the other list.
 func (list *List) Extend(values interface{}) error {
 	switch values.(type) {
-		case List:
-			for _, value := range otherList {
-				*list = append(*list, value)
-			}
-			return nil
-		default:
-			return ErrExtendWithNoList
+	case List:
+		for _, value := range otherList {
+			*list = append(*list, value)
+		}
+		return nil
+	default:
+		return ErrExtendWithNoList
 	}
 }
 
@@ -176,8 +188,6 @@ func (list *List) Reverse() {
 //}
 
 // String returns list values as string
-//		l := listdict.List{"one", 2, "three"}
-// 		l.String() => "one, 2, three"
 func (list List) String() string {
 	var out []string
 	for _, val := range list {
