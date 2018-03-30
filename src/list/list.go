@@ -44,14 +44,19 @@ var (
 // Adds elements to the end of the specified list.
 // Note since the builtin append() will return a new
 // list when the length or capacity is not sufficient.
-// In this case the reciver should be used with the
+// In this case the receiver should be used with the
 // pointer object rather than the 'List' object itself.
+// This will ensure the receiver pointer refer to the new
+// buffer with cap and length expanded. And as a return
+// the original slice shares the same address with its
+// copy(a.k.a: receiver pointer *List in this case).
 func (list *List) Append(values ...interface{}) {
 	*list = append(*list, values...)
 }
 
 // Adds an element to the end of the list if it's not
-// already in the list.
+// already in the list. Likewise, should use pointer as
+// the receiver.
 func (list *List) AppendIfNotExists(value interface{}) error {
 	for _, ele := range *list {
 		if ele == value {
@@ -63,9 +68,9 @@ func (list *List) AppendIfNotExists(value interface{}) error {
 }
 
 // Returns the times of the caculated numbers in the list.
-func (list List) Count(value interface{}) int {
+func (list *List) Count(value interface{}) int {
 	count := 0
-	for _, listValue := range list {
+	for _, listValue := range *list {
 		if listValue == value {
 			count++
 		}
@@ -103,8 +108,8 @@ func (list *List) Extend(values interface{}) error {
 // Returns the index of the item in the list within the value of val.
 // Note this will only seek for the index of first item in the list.
 // Will returned with -1 if there is no specified item has been found.
-func (list List) Index(val interface{}) (int, error) {
-	for index, listValue := range list {
+func (list *List) Index(val interface{}) (int, error) {
+	for index, listValue := range *list {
 		if listValue == val {
 			return index, nil
 		}
@@ -128,8 +133,8 @@ func (list *List) Insert(index int, values ...interface{}) {
 }
 
 // IsEqual returns true if lists are equal.
-func (list List) IsEqual(otherList List) bool {
-	return reflect.DeepEqual(list, otherList)
+func (list *List) IsEqual(otherList List) bool {
+	return reflect.DeepEqual(*list, otherList)
 }
 
 // Remove and returns the last element in the list.
@@ -188,9 +193,9 @@ func (list *List) Reverse() {
 //}
 
 // String returns list values as string
-func (list List) String() string {
+func (list *List) String() string {
 	var out []string
-	for _, val := range list {
+	for _, val := range *list {
 		out = append(out, fmt.Sprintf("%v", val))
 	}
 	return strings.Join(out, ", ")
