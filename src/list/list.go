@@ -1,4 +1,4 @@
-// Copyright 2009 The Go Authors. All rights reserved.
+// Copyright 2018 The Go Authors. All rights reserved.
 
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"unsafe"
 )
 
 // List is based on the low layer slice,
@@ -54,12 +55,33 @@ func (list *List) Append(values ...interface{}) {
 	*list = append(*list, values...)
 }
 
+// Extend one list with the contents of the other list.
+func (list *List) Extend(values... interface{}) error {
+	for _, element := range values {
+		rtype := reflect.TypeOf(element)
+		rvalue := reflect.ValueOf(element)
+		fmt.Printf("########%v, %v\n", rtype, rvalue)
+		switch rtype.Kind() {
+			case reflect.Slice:
+				s := *(*reflect.SliceHeader)(unsafe.Pointer(rvalue.Pointer()))
+				fmt.Printf("llllllllllllll: %v, %d, %T\n", s.Data, rvalue.Len(), rvalue.Index(1))
+				fmt.Println("$$$$$$$$$$$$", rvalue.Len(), rvalue.Cap(), s)
+				for i := 0; i < rvalue.Len(); i++ {
+					*list = append(*list, rvalue.Index(i))
+				}
+			default:
+				*list = append(*list, element)
+		}
+	}
+	return nil
+}
+
 // Adds an element to the end of the list if it's not
 // already in the list. Likewise, should use pointer as
 // the receiver.
 func (list *List) AppendIfNotExists(value interface{}) error {
-	for _, ele := range *list {
-		if ele == value {
+	for _, element := range *list {
+		if element == value {
 			return ErrAppendExistValueIntoList
 		}
 	}
@@ -90,19 +112,6 @@ func (list *List) Delete(index int) error {
 	(*list)[length-1] = nil
 	*list = (*list)[:length-1]
 	return nil
-}
-
-// Extend one list with the contents of the other list.
-func (list *List) Extend(values interface{}) error {
-	switch values.(type) {
-	case List:
-		for _, value := range otherList {
-			*list = append(*list, value)
-		}
-		return nil
-	default:
-		return ErrExtendWithNoList
-	}
 }
 
 // Returns the index of the item in the list within the value of val.
@@ -188,9 +197,9 @@ func (list *List) Reverse() {
 	}
 }
 
-// Sort the list in place ordering elements from smallest to largest.
-//func (list *List) Sort() {
-//}
+// Sort the list as needed.
+func (list *List) Sort() {
+}
 
 // String returns list values as string
 func (list *List) String() string {
