@@ -17,22 +17,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"unsafe"
 )
-
-// List is based on the low layer slice,
-// it is able to store any type of element.
-type List []interface{}
-
-// Return new List with specified length, which actually is a slice.
-func NewList(length int) List {
-	return make(List, length)
-}
-
-// Return new List with specified length and capacity.
-func MakeList(length int, cap int) List {
-	return make(List, length, cap)
-}
 
 // Error type for the operations towards the List
 var (
@@ -41,6 +26,41 @@ var (
 	ErrExtendWithNoList         = errors.New("Error to extend non-list values into a list")
 	ErrIndexNotFound            = errors.New("Error to locate the index of the specified value")
 )
+
+// List is based on the low layer slice,
+// it is able to store any type of element.
+type List []interface{}
+
+// Return new List with specified length, which actually is a slice.
+func MakeList(length int) List {
+	return make(List, length)
+}
+
+// Return new List with specified length and capacity.
+func MakeListWithCap(length int, capacity int) List {
+	return make(List, length, capacity)
+}
+
+// Form the data into a list as required, all of the data
+// pass from the caller would be stored into the list.
+func CreateList(values...interface{}) List {
+	var mList List
+	for _, value := range values {
+		mList = append(mList, value)
+	}
+	return mList
+}
+
+// Determine a given list is with all <nil> value stored.
+func (list List) IsNilList() bool {
+	var res bool = true
+	for _, value := range list {
+		if value != nil {
+			res = false
+		}
+	}
+	return res
+}
 
 // Adds elements to the end of the specified list.
 // Note since the builtin append() will return a new
@@ -60,14 +80,15 @@ func (list *List) Extend(values... interface{}) error {
 	for _, element := range values {
 		rtype := reflect.TypeOf(element)
 		rvalue := reflect.ValueOf(element)
-		fmt.Printf("########%v, %v\n", rtype, rvalue)
 		switch rtype.Kind() {
 			case reflect.Slice:
-				s := *(*reflect.SliceHeader)(unsafe.Pointer(rvalue.Pointer()))
-				fmt.Printf("llllllllllllll: %v, %d, %T\n", s.Data, rvalue.Len(), rvalue.Index(1))
-				fmt.Println("$$$$$$$$$$$$", rvalue.Len(), rvalue.Cap(), s)
+			// Thanks to the discussion from here:
+			// https://stackoverflow.com/questions/14025833/range-over-interface-which-stores-a-slice
+			// And https://github.com/golang/go/wiki/InterfaceSlice
+			// That we cannot range over the type of interface{} .i.e: reflect.Value
+			// In which case, we need leverage the help of reflec package to extend each value.
 				for i := 0; i < rvalue.Len(); i++ {
-					*list = append(*list, rvalue.Index(i))
+					*list = append(*list, rvalue.Index(i).Interface())
 				}
 			default:
 				*list = append(*list, element)
@@ -123,7 +144,7 @@ func (list *List) Index(val interface{}) (int, error) {
 			return index, nil
 		}
 	}
-	fmt.Println("%v does not exist in the list, return index of -1 instead", val)
+	fmt.Printf("%v does not exist in the list, return index of -1 instead", val)
 	return -1, ErrIndexNotFound
 }
 

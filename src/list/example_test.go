@@ -12,12 +12,20 @@ import (
 
 var mList list.List
 
-func ExampleList_Create() {
-	mList = list.MakeList(5, 5)
+func ExampleList_MakeList() {
+	mList = list.MakeList(5)
 	fmt.Println(mList)
 
 	//Output:
 	//[<nil> <nil> <nil> <nil> <nil>]
+}
+
+func ExampleList_CreateList() {
+	mList = list.CreateList(0,1,2)
+	fmt.Println(mList)
+
+	//Output:
+	//[1,2,3,4]
 }
 
 func ExampleList_Append() {
