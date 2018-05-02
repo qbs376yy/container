@@ -20,12 +20,20 @@ func ExampleList_MakeList() {
 	//[<nil> <nil> <nil> <nil> <nil>]
 }
 
-func ExampleList_CreateList() {
-	mList = list.CreateList(0,1,2)
+func ExampleList_BuildList() {
+	mList = list.BuildList()
 	fmt.Println(mList)
 
 	//Output:
 	//[1,2,3,4]
+}
+
+func ExampleList_InitList() {
+	sample_list := list.MakeList(6)
+	err := sample_list.InitList(7,2,999, 0, 4)
+	fmt.Println("err is ", err, ", sample list is: ", sample_list)
+	//Output:
+	//error
 }
 
 func ExampleList_Append() {

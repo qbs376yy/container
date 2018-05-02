@@ -25,6 +25,7 @@ var (
 	ErrAppendExistValueIntoList = errors.New("Error to append an existed element into the list")
 	ErrExtendWithNoList         = errors.New("Error to extend non-list values into a list")
 	ErrIndexNotFound            = errors.New("Error to locate the index of the specified value")
+	ErrListNotNew            	= errors.New("Error to init a list that is not newly created")
 )
 
 // List is based on the low layer slice,
@@ -43,7 +44,7 @@ func MakeListWithCap(length int, capacity int) List {
 
 // Form the data into a list as required, all of the data
 // pass from the caller would be stored into the list.
-func CreateList(values...interface{}) List {
+func BuildList(values...interface{}) List {
 	var mList List
 	for _, value := range values {
 		mList = append(mList, value)
@@ -62,6 +63,25 @@ func (list List) IsNilList() bool {
 	return res
 }
 
+// Initialize an existing list which is created by MakeList()
+// with the values that are needed to be restored into it.
+func (list *List)InitList(values...interface{}) error {
+	if list.IsNilList() != true {
+		return ErrListNotNew
+	}
+
+	if len(*list) >= len(values) {
+		copy((*list)[0:], values)
+	} else {
+		copy((*list)[0:], values[0:len(*list)])
+		for _, remaining_value := range values[len(*list):] {
+			*list = append(*list, remaining_value)
+		}
+	}
+	return nil
+
+}
+
 // Adds elements to the end of the specified list.
 // Note since the builtin append() will return a new
 // list when the length or capacity is not sufficient.
@@ -71,12 +91,24 @@ func (list List) IsNilList() bool {
 // buffer with cap and length expanded. And as a return
 // the original slice shares the same address with its
 // copy(a.k.a: receiver pointer *List in this case).
-func (list *List) Append(values ...interface{}) {
-	*list = append(*list, values...)
+func (list *List) Append(values ...interface{}) error {
+	if list.IsNilList() {
+		fmt.Println("using init list instead")
+		err := list.InitList(values...)
+		return err
+	} else {
+		*list = append(*list, values...)
+	}
+	return nil
 }
 
 // Extend one list with the contents of the other list.
 func (list *List) Extend(values... interface{}) error {
+	if list.IsNilList() {
+		fmt.Println("using init list instead...")
+		err := list.InitList(values)
+		return err
+	}
 	for _, element := range values {
 		rtype := reflect.TypeOf(element)
 		rvalue := reflect.ValueOf(element)
