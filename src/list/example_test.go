@@ -30,7 +30,7 @@ func ExampleList_BuildList() {
 
 func ExampleList_InitList() {
 	sample_list := list.MakeList(6)
-	err := sample_list.InitList(7,2,999, 0, 4)
+	err := sample_list.InitList(7, 2, 999, 0, 4)
 	fmt.Println("err is ", err, ", sample list is: ", sample_list)
 	//Output:
 	//error
@@ -54,7 +54,7 @@ func ExampleList_Append() {
 }
 
 func ExampleList_Extend() {
-	if err := mList.Extend(7, []int{1,2,3}); err != nil {
+	if err := mList.Extend(7, []int{1, 2, 3}); err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println(mList)

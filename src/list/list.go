@@ -28,10 +28,6 @@ var (
 	ErrListNotNew               = errors.New("Error to init a list that is not newly created")
 )
 
-// Determine if the list is newly created with <nil> members all inside
-// Default value is set as true
-var isNilList bool = true
-
 // List is based on the low layer slice,
 // it is able to store any type of element.
 type List []interface{}
@@ -48,7 +44,7 @@ func MakeListWithCap(length int, capacity int) List {
 
 // Form the data into a list as required, all of the data
 // pass from the caller would be stored into the list.
-func BuildList(values...interface{}) List {
+func BuildList(values ...interface{}) List {
 	var mList List
 	for _, value := range values {
 		mList = append(mList, value)
@@ -58,21 +54,20 @@ func BuildList(values...interface{}) List {
 
 // Determine a given list is with all <nil> value stored.
 func (list List) IsNilList() bool {
-	if !isNilList {
-		return false
-	}
+	var res bool = true
 
 	for _, value := range list {
 		if value != nil {
-			isNilList = false
+			res = false
 		}
 	}
-	return isNilList
+
+	return res
 }
 
 // Initialize an existing list which is created by MakeList()
 // with the values that are needed to be restored into it.
-func (list *List)InitList(values...interface{}) error {
+func (list *List) InitList(values ...interface{}) error {
 	if !list.IsNilList() {
 		return ErrListNotNew
 	}
@@ -107,7 +102,7 @@ func (list *List) Append(values ...interface{}) error {
 }
 
 // Extend one list with the contents of the other list.
-func (list *List) Extend(values... interface{}) error {
+func (list *List) Extend(values ...interface{}) error {
 	if list.IsNilList() {
 		return list.InitList(values)
 	}
@@ -116,17 +111,17 @@ func (list *List) Extend(values... interface{}) error {
 		rtype := reflect.TypeOf(element)
 		rvalue := reflect.ValueOf(element)
 		switch rtype.Kind() {
-			case reflect.Slice:
+		case reflect.Slice:
 			// Thanks to the discussion from here:
 			// https://stackoverflow.com/questions/14025833/range-over-interface-which-stores-a-slice
 			// And https://github.com/golang/go/wiki/InterfaceSlice
 			// That we cannot range over the type of interface{} .i.e: reflect.Value
 			// In which case, we need leverage the help of reflec package to extend each value.
-				for i := 0; i < rvalue.Len(); i++ {
-					*list = append(*list, rvalue.Index(i).Interface())
-				}
-			default:
-				*list = append(*list, element)
+			for i := 0; i < rvalue.Len(); i++ {
+				*list = append(*list, rvalue.Index(i).Interface())
+			}
+		default:
+			*list = append(*list, element)
 		}
 	}
 	return nil
