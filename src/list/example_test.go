@@ -36,10 +36,18 @@ func ExampleList_InitList() {
 	//error
 }
 
+func ExampleList_IsNilList() {
+	fmt.Println(mList.IsNilList())
+
+	//Output:
+	//true
+}
+
 func ExampleList_Append() {
 	mSlice := []string{"hi", "world"}
 	mList.Append(mSlice)
 	fmt.Println(mList)
+	fmt.Println(mList.IsNilList())
 
 	//Output:
 	//[1 2 3]
@@ -54,5 +62,4 @@ func ExampleList_Extend() {
 
 	//Output:
 	//[1 2 3 1 2 3]
-
 }

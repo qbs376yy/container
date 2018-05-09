@@ -25,8 +25,12 @@ var (
 	ErrAppendExistValueIntoList = errors.New("Error to append an existed element into the list")
 	ErrExtendWithNoList         = errors.New("Error to extend non-list values into a list")
 	ErrIndexNotFound            = errors.New("Error to locate the index of the specified value")
-	ErrListNotNew            	= errors.New("Error to init a list that is not newly created")
+	ErrListNotNew               = errors.New("Error to init a list that is not newly created")
 )
+
+// Determine if the list is newly created with <nil> members all inside
+// Default value is set as true
+var isNilList bool = true
 
 // List is based on the low layer slice,
 // it is able to store any type of element.
@@ -54,19 +58,22 @@ func BuildList(values...interface{}) List {
 
 // Determine a given list is with all <nil> value stored.
 func (list List) IsNilList() bool {
-	var res bool = true
+	if !isNilList {
+		return false
+	}
+
 	for _, value := range list {
 		if value != nil {
-			res = false
+			isNilList = false
 		}
 	}
-	return res
+	return isNilList
 }
 
 // Initialize an existing list which is created by MakeList()
 // with the values that are needed to be restored into it.
 func (list *List)InitList(values...interface{}) error {
-	if list.IsNilList() != true {
+	if !list.IsNilList() {
 		return ErrListNotNew
 	}
 
@@ -79,7 +86,6 @@ func (list *List)InitList(values...interface{}) error {
 		}
 	}
 	return nil
-
 }
 
 // Adds elements to the end of the specified list.
@@ -93,9 +99,7 @@ func (list *List)InitList(values...interface{}) error {
 // copy(a.k.a: receiver pointer *List in this case).
 func (list *List) Append(values ...interface{}) error {
 	if list.IsNilList() {
-		fmt.Println("using init list instead")
-		err := list.InitList(values...)
-		return err
+		return list.InitList(values...)
 	} else {
 		*list = append(*list, values...)
 	}
@@ -105,10 +109,9 @@ func (list *List) Append(values ...interface{}) error {
 // Extend one list with the contents of the other list.
 func (list *List) Extend(values... interface{}) error {
 	if list.IsNilList() {
-		fmt.Println("using init list instead...")
-		err := list.InitList(values)
-		return err
+		return list.InitList(values)
 	}
+
 	for _, element := range values {
 		rtype := reflect.TypeOf(element)
 		rvalue := reflect.ValueOf(element)
