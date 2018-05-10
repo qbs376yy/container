@@ -174,7 +174,6 @@ func (list *List) Index(val interface{}) (int, error) {
 			return index, nil
 		}
 	}
-	fmt.Printf("%v does not exist in the list, return index of -1 instead", val)
 	return -1, ErrIndexNotFound
 }
 
@@ -225,7 +224,6 @@ func (list *List) PopItem(index int) (interface{}, error) {
 // Remove the first element from the list whose value matches the given value.
 // Error if no match is found.
 func (list *List) Remove(val interface{}) error {
-	errorString := fmt.Sprintf("%v is not in list", val)
 	if len(*list) > 0 {
 		for index, listValue := range *list {
 			if listValue == val {
@@ -234,7 +232,7 @@ func (list *List) Remove(val interface{}) error {
 			}
 		}
 	}
-	return errors.New(errorString)
+	return ErrRemoveFromEmptyList
 }
 
 // Reverse the elements of the list in place.
@@ -253,10 +251,10 @@ func (list *List) Sort() {
 }
 
 // String returns list values as string
-func (list *List) String() string {
+func (list *List) String(sep string) string {
 	var out []string
 	for _, val := range *list {
 		out = append(out, fmt.Sprintf("%v", val))
 	}
-	return strings.Join(out, ", ")
+	return strings.Join(out, sep)
 }
