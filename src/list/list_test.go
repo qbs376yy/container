@@ -201,3 +201,33 @@ func TestString(t *testing.T) {
 		t.Errorf("List join failed: %s\n", str)
 	}
 }
+
+func TestSort(t *testing.T) {
+	mList := list.BuildList(3, 2, 1)
+	if res, err := mList.Sort(); err != nil {
+		t.Error(err, res)
+	} else {
+		t.Log(res)
+	}
+
+	mList = list.BuildList("hello", "world", "abc", "c")
+	if res, err := mList.Sort(); err != nil {
+		t.Error(err, res)
+	} else {
+		t.Log(res)
+	}
+
+	mList = list.BuildList(3.0, 2.1, 1.0)
+	if res, err := mList.Sort(); err != nil {
+		t.Error(err, res)
+	} else {
+		t.Logf("%0.1f", res)
+	}
+
+	mList = list.BuildList(3, 2, 1.0)
+	if res, err := mList.Sort(); err != nil {
+		t.Error(err, res)
+	} else {
+		t.Logf("%v", res)
+	}
+}

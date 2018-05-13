@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -26,6 +27,7 @@ var (
 	ErrExtendWithNoList         = errors.New("Error to extend non-list values into a list")
 	ErrIndexNotFound            = errors.New("Error to locate the index of the specified value")
 	ErrListNotNew               = errors.New("Error to init a list that is not newly created")
+	ErrListNotSupportSort       = errors.New("Error to sort a list that does not support to")
 )
 
 // List is based on the low layer slice,
@@ -93,6 +95,10 @@ func (list *List) InitList(values ...interface{}) error {
 // the original slice shares the same address with its
 // copy(a.k.a: receiver pointer *List in this case).
 func (list *List) Append(values ...interface{}) error {
+	if len(values) == 0 {
+		return nil
+	}
+
 	if list.IsNilList() {
 		return list.InitList(values...)
 	} else {
@@ -103,6 +109,10 @@ func (list *List) Append(values ...interface{}) error {
 
 // Extend one list with the contents of the other list.
 func (list *List) Extend(values ...interface{}) error {
+	if len(values) == 0 {
+		return nil
+	}
+
 	if list.IsNilList() {
 		return list.InitList(values)
 	}
@@ -246,8 +256,63 @@ func (list *List) Reverse() {
 	}
 }
 
-// Sort the list as needed.
-func (list *List) Sort() {
+// To rebuild the list with values from a slice
+func formListFromSlice(slice interface{}) List {
+	var mList List
+	rt := reflect.TypeOf(slice)
+	rv := reflect.ValueOf(slice)
+	if rt.Kind() == reflect.Slice {
+		for i := 0; i < rv.Len(); i++ {
+			mList = append(mList, rv.Index(i).Interface())
+		}
+	}
+	return mList
+}
+
+// Sort the list as needed, currently only the data type with
+// int, float64, string is support to sort in a given slice.
+func (list *List) Sort() (List, error) {
+	if len(*list) == 0 {
+		return *list, ErrListNotSupportSort
+	}
+
+	var mIntSlice sort.IntSlice
+	var mFloat64Slice sort.Float64Slice
+	var mStringSlice sort.StringSlice
+
+	for _, value := range *list {
+		switch (value).(type) {
+		case int:
+			mIntSlice = append(mIntSlice, value.(int))
+		case float64:
+			mFloat64Slice = append(mFloat64Slice, value.(float64))
+		case string:
+			mStringSlice = append(mStringSlice, value.(string))
+		default:
+			fmt.Printf("Invalid data type detected to sort: %v\n", value)
+			return *list, ErrListNotSupportSort
+		}
+	}
+
+	if len(mIntSlice) > 0 && len(*list) == len(mIntSlice) {
+		mIntSlice.Sort()
+		mList := formListFromSlice(mIntSlice)
+		return mList, nil
+	}
+
+	if len(mFloat64Slice) > 0 && len(*list) == len(mFloat64Slice) {
+		mFloat64Slice.Sort()
+		mList := formListFromSlice(mFloat64Slice)
+		return mList, nil
+	}
+
+	if len(mStringSlice) > 0 && len(*list) == len(mStringSlice) {
+		mStringSlice.Sort()
+		mList := formListFromSlice(mStringSlice)
+		return mList, nil
+	}
+
+	return *list, ErrListNotSupportSort
 }
 
 // String returns list values as string
