@@ -1,19 +1,21 @@
+// Copyright 2018 The Go Authors. All rights reserved.
+
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package dict_test
 
 import (
-	."dict"
-	"fmt"
+	"dict"
 	"testing"
 )
 
-func TestGet(t *testing.T) {
+func TestHasKey(t *testing.T) {
+	mDict := dict.NewDict()
+	mDict.SetDefault('0', 6)
 
-	fmt.Println("this is testing")
-	dict := NewDict()
-
-	fmt.Println(dict.Get(5, 8))
-
-	dict.SetDefault('0', 6)
-	fmt.Println(dict.Get('0', 6))
+	if !mDict.HasKey('0') {
+		t.Error("Dict has not the key")
+	}
 
 }

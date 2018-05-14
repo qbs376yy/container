@@ -1,3 +1,14 @@
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+
+// Dict impletments a bunch of operations which are pretty
+// simliar to what python does. It is majorly based on
+// the Go map type to support different API that will
+// be supportive with data management with key-value pait.
+// And data stored in dict would be applicable to any type.
+
 package dict
 
 import (
@@ -8,13 +19,8 @@ import (
 	"reflect"
 )
 
-// Function be called during import.
-func init() {
-	fmt.Println("Import dict package success!")
-}
-
 // Any type for the dict keys and values.
-type any interface{}
+type any = interface{}
 
 // Go list aligned with python style.
 // Each element inside from the List will be treated
@@ -32,8 +38,8 @@ type Dict map[any]any
 // Error types for different operations for Dict
 var (
 	ErrRemoveFromEmptyDict = errors.New("Trying to remove element from empty dict")
-	ErrUnsupportKeyType = errors.New("Unsupportive key type")
-	ErrValueNotExist = errors.New("Value not exist")
+	ErrUnsupportKeyType    = errors.New("Unsupportive key type")
+	ErrValueNotExist       = errors.New("Value not exist")
 )
 
 // IsValidKeys will determine the any type come from interface{}
@@ -44,16 +50,16 @@ var (
 func IsValidKeys(key any) (err error) {
 	err = ErrUnsupportKeyType
 	switch key.(type) {
-		case string:
-			err = nil
-		case byte:
-			err = nil
-		case float32,float64:
-			err = nil
-		case int, int8, int32, int64:
-			err = nil
-		case uint, uint16, uint32, uint64:
-			err = nil
+	case string:
+		err = nil
+	case byte:
+		err = nil
+	case float32, float64:
+		err = nil
+	case int, int8, int32, int64:
+		err = nil
+	case uint, uint16, uint32, uint64:
+		err = nil
 	}
 	return
 }
