@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-
 // Dict impletments a bunch of operations which are pretty
 // simliar to what python does. It is majorly based on
 // the Go map type to support different API that will
@@ -15,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"os"
 	"reflect"
 )
 
@@ -37,9 +35,9 @@ type Dict map[Any]Any
 
 // Error types for different operations for Dict
 var (
-	ErrRemoveFromEmptyDict = errors.New("Trying to remove element from empty dict")
-	ErrUnsupportKeyTypeFound    = errors.New("Unsupportive key type found")
-	ErrValueNotExist       = errors.New("Value not exist")
+	ErrRemoveFromEmptyDict   = errors.New("Trying to remove element from empty dict")
+	ErrUnsupportKeyTypeFound = errors.New("Unsupportive key type found")
+	ErrValueNotExist         = errors.New("Value not exist")
 )
 
 // IsValidKeys will determine the any type come from interface{}
@@ -48,7 +46,7 @@ var (
 // are set as the key inside from the map[] so here just filter
 // invalid syntax expression for the key.
 func IsValidKeys(key Any) (err error) {
-	err = ErrUnsupportKeyType
+	err = ErrUnsupportKeyTypeFound
 	switch key.(type) {
 	case string:
 		err = nil
@@ -131,13 +129,13 @@ func (dict Dict) Values() List {
 
 // Items returns an unordered list with the element of
 // each key-value pairs. Saying, the result in the list
-// will be [(key1, value1), (key2,value2),(key3,value3)..]
+// will be [[key1, value1], [key2,value2],[key3,value3]..]
 func (dict Dict) Items() []List {
-	list := []List{}
+	mList := []List{}
 	for key, value := range dict {
-		list = append(list, List{key, value})
+		mList = append(mList, List{key, value})
 	}
-	return list
+	return mList
 }
 
 // Pop returns value and remove the given key from the dictionary.
@@ -157,8 +155,8 @@ func (dict Dict) Pop(key Any, defaultVal Any) (Any, error) {
 	return defaultVal, nil
 }
 
-// PopItem return and remove a random key-value pair from the dict.
-// And the random elment with be restored into a specified list.
+// PopItem returns and removes a random key-value pair from the dict.
+// And the random elment returned will be set into a specified list.
 func (dict Dict) PopItem() (List, error) {
 	if len(dict) <= 0 {
 		return List{}, ErrRemoveFromEmptyDict
@@ -166,6 +164,7 @@ func (dict Dict) PopItem() (List, error) {
 
 	// Get dict keys
 	dictKeys := dict.Keys()
+
 	// Return random key as string
 	randKey := fmt.Sprintf("%v", dictKeys[rand.Intn(len(dictKeys))])
 
