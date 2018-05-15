@@ -20,12 +20,12 @@ import (
 )
 
 // Any type for the dict keys and values.
-type any = interface{}
+type Any = interface{}
 
 // Go list aligned with python style.
 // Each element inside from the List will be treated
 // as a value of the Dict despite any type it belongs.
-type List []any
+type List = []Any
 
 // Go dict aligned with python style.
 // Initialization about a dict could be easy by using
@@ -33,12 +33,12 @@ type List []any
 // map for the definition of the key-value elements.
 // Considering the hash towards the key inside the map
 // only the basic type(string, int) are commonly supported.
-type Dict map[any]any
+type Dict map[Any]Any
 
 // Error types for different operations for Dict
 var (
 	ErrRemoveFromEmptyDict = errors.New("Trying to remove element from empty dict")
-	ErrUnsupportKeyType    = errors.New("Unsupportive key type")
+	ErrUnsupportKeyTypeFound    = errors.New("Unsupportive key type found")
 	ErrValueNotExist       = errors.New("Value not exist")
 )
 
@@ -47,7 +47,7 @@ var (
 // chan or even the other Go objects are seem to be wired if they
 // are set as the key inside from the map[] so here just filter
 // invalid syntax expression for the key.
-func IsValidKeys(key any) (err error) {
+func IsValidKeys(key Any) (err error) {
 	err = ErrUnsupportKeyType
 	switch key.(type) {
 	case string:
@@ -71,6 +71,21 @@ func NewDict() Dict {
 	return make(Dict)
 }
 
+// DictFromKeys creates a new dictionary with keys from
+// list and values set to defaultVal. Returns a new dict
+// if the loading from the list is succeeded.
+func FromKeys(keys List, defaultVal Any) (Dict, error) {
+	newDict := NewDict()
+	for _, key := range keys {
+		if err := IsValidKeys(key); err != nil {
+			return newDict, err
+		} else {
+			newDict[key] = defaultVal
+		}
+	}
+	return newDict, nil
+}
+
 // Clear up all elements from the dictionary.
 func (dict Dict) Clear() {
 	for key := range dict {
@@ -79,7 +94,7 @@ func (dict Dict) Clear() {
 }
 
 // HasKey returns true if key is in the dictionary, false otherwise.
-func (dict Dict) HasKey(key any) bool {
+func (dict Dict) HasKey(key Any) bool {
 	if _, ok := dict[key]; ok {
 		return true
 	}
@@ -89,22 +104,6 @@ func (dict Dict) HasKey(key any) bool {
 // IsEqual returns true if dicts are equal.
 func (dict Dict) IsEqual(otherDict Dict) bool {
 	return reflect.DeepEqual(dict, otherDict)
-}
-
-// DictFromKeys creates a new dictionary with keys from
-// list and values set to defaultVal. Returns a new dict
-// if the loading from the list is succeeded.
-func (dict Dict) FromKeys(list List, defaultVal any) Dict {
-	newDict := NewDict()
-	for _, value := range list {
-		if err := IsValidKeys(value); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		} else {
-			newDict[value] = defaultVal
-		}
-	}
-	return newDict
 }
 
 // Keys returns a list of the dictionary's keys, unordered.
@@ -131,7 +130,7 @@ func (dict Dict) Values() List {
 }
 
 // Items returns an unordered list with the element of
-// each key-value pairs.For example, the result in the list
+// each key-value pairs. Saying, the result in the list
 // will be [(key1, value1), (key2,value2),(key3,value3)..]
 func (dict Dict) Items() []List {
 	list := []List{}
@@ -144,15 +143,17 @@ func (dict Dict) Items() []List {
 // Pop returns value and remove the given key from the dictionary.
 // If the given key is NOT in the dictionary return defaultVal.
 // defaultVal should be same type as you expect to get.
-func (dict Dict) Pop(key any, defaultVal any) (any, error) {
+func (dict Dict) Pop(key Any, defaultVal Any) (Any, error) {
 	if len(dict) <= 0 {
 		return defaultVal, ErrRemoveFromEmptyDict
 	}
+
 	if dict.HasKey(key) {
 		val := dict[key]
 		delete(dict, key)
 		return val, nil
 	}
+
 	return defaultVal, nil
 }
 
@@ -179,7 +180,7 @@ func (dict Dict) PopItem() (List, error) {
 
 // Get returns value for the given key or defaultVal if key is NOT in
 // the dictionary. defaultVal should be same type as you expect to get.
-func (dict Dict) Get(key any, defaultVal any) any {
+func (dict Dict) Get(key Any, defaultVal Any) Any {
 	if dict.HasKey(key) {
 		return dict[key]
 	}
@@ -190,25 +191,24 @@ func (dict Dict) Get(key any, defaultVal any) any {
 // Note if a value along with a key in the dict has already
 // existed,then the corresponding pair will not be changed.
 // Whereas if the value is not presented in that dict, then
-// a new key-pair will go into the dict as well.In each way
+// a new key-pair will go into the dict as well. Either way
 // the default value of the second parameter will be returned.
-func (dict Dict) SetDefault(key any, defaultVal any) any {
+func (dict Dict) SetDefault(key Any, defaultVal Any) (Any, error) {
 	if dict.HasKey(key) {
-		return dict[key]
+		return dict[key], nil
 	}
 	if err := IsValidKeys(key); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		return defaultVal, err
 	} else {
 		dict[key] = defaultVal
 	}
-	return defaultVal
+	return defaultVal, nil
 }
 
-// Update updates the dictionary with the key-value pairs in the dict2
+// Update updates the dictionary with the key-value pairs in the mDict
 // dictionary replacing current values and adding new if found.
-func (dict Dict) Update(dict2 Dict) {
-	for key, value := range dict2 {
+func (dict Dict) Update(mDict Dict) {
+	for key, value := range mDict {
 		dict[key] = value
 	}
 }
