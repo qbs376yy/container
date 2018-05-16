@@ -69,18 +69,35 @@ func NewDict() Dict {
 	return make(Dict)
 }
 
-// DictFromKeys creates a new dictionary with keys from
+// FromKeys creates a new dictionary with keys from
 // list and values set to defaultVal. Returns a new dict
 // if the loading from the list is succeeded.
-func FromKeys(keys List, defaultVal Any) (Dict, error) {
+func FromKeys(keys Any, defaultVal Any) (Dict, error) {
 	newDict := NewDict()
-	for _, key := range keys {
+
+	f := func(mDict Dict, key Any, defaultVal Any) error {
 		if err := IsValidKeys(key); err != nil {
-			return newDict, err
+			return err
 		} else {
-			newDict[key] = defaultVal
+			mDict[key] = defaultVal
+			return nil
 		}
 	}
+
+	if reflect.TypeOf(keys).Kind() == reflect.Slice {
+		var err error
+		for i := 0; i < reflect.ValueOf(keys).Len(); i++ {
+			key := reflect.ValueOf(keys).Index(i).Interface()
+			err = f(newDict, key, defaultVal)
+			if err != nil {
+				return newDict, err
+			}
+		}
+	} else {
+		err := f(newDict, keys, defaultVal)
+		return newDict, err
+	}
+
 	return newDict, nil
 }
 
@@ -170,6 +187,7 @@ func (dict Dict) PopItem() (List, error) {
 
 	list := make(List, 2)
 	list = List{randKey, dict[randKey]}
+	fmt.Println("######", list, dict, dict[randKey])
 
 	delete(dict, randKey)
 
