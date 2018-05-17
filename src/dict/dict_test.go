@@ -58,7 +58,7 @@ func TestFromKeys(t *testing.T) {
 }
 
 func TestKeys(t *testing.T) {
-	mDict, _ := dict.FromKeys([]int{0,1,2}, 5)
+	mDict, _ := dict.FromKeys([]int{0, 1, 2}, 5)
 	mList := mDict.Keys()
 	for index, key := range mList {
 		if mList[index] != key {
@@ -68,7 +68,7 @@ func TestKeys(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
-	mDict, _ := dict.FromKeys([]int{0,1,2}, 5)
+	mDict, _ := dict.FromKeys([]int{0, 1, 2}, 5)
 	mList := mDict.Values()
 	for index, value := range mList {
 		if value != 5 {
@@ -119,9 +119,46 @@ func TestPopItem(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		mDict[i] = i
 	}
-	t.Log("$$$....", mDict[2])
 
 	mList, _ = mDict.PopItem()
-	t.Log(mList)
+	if len(mDict) == 5 {
+		t.Log(mList, mDict)
+	}
+}
 
+func TestGet(t *testing.T) {
+	mDict := dict.NewDict()
+	mDict['a'] = 'A'
+	value := mDict.Get('a', 'B')
+	if value != 'A' {
+		t.Errorf("Error to get the element:%v\n", value)
+	}
+}
+
+func TestSetDefault(t *testing.T) {
+	mDict := dict.NewDict()
+	if value, err := mDict.SetDefault('a', 'b'); err != nil {
+		t.Errorf("Value being set as default is:%v, %v\n", value, err)
+	} else {
+		t.Logf("Default value set as expected: %v\n", value)
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	mDict := dict.NewDict()
+	nDict := dict.NewDict()
+	for i := 0; i < 5; i++ {
+		mDict[i] = i
+	}
+
+	for j := 0; j < 5; j++ {
+		nDict[j] = 5
+	}
+
+	mDict.Update(nDict)
+	for k, v := range mDict {
+		if v != 5 {
+			t.Errorf("Dict update failed for: %v, %v\n", k, v)
+		}
+	}
 }

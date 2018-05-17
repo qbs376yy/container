@@ -12,7 +12,6 @@ package dict
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"reflect"
 )
@@ -183,13 +182,12 @@ func (dict Dict) PopItem() (List, error) {
 	dictKeys := dict.Keys()
 
 	// Return random key as string
-	randKey := fmt.Sprintf("%v", dictKeys[rand.Intn(len(dictKeys))])
+	randKey := dictKeys[rand.Intn(len(dictKeys))]
 
 	list := make(List, 2)
 	list = List{randKey, dict[randKey]}
-	fmt.Println("######", list, dict, dict[randKey])
 
-	delete(dict, randKey)
+	defer delete(dict, randKey)
 
 	return list, nil
 
