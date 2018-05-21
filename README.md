@@ -13,14 +13,14 @@ will be supportive as many data types as possible whereby they
 would implement expecting data control on high level software. 
 
 
-It is a good practice to support data structure with the effecient
-algorithm so that the users could pick up the appropriate type
-to manage their data in their dedicated software development. This
-usually takes place in other languages like python/c++/java but so far
-container in golang is not adequate to support this requirement.
+It is a good practice to support data structure management with
+the effecient algorithm to wrap different kinds of data which
+needs to be manipulated in users' dedicated software development.
+This usually takes place in other languages like python/c++/java
+but so far container in golang is not adequate for such requirement.
 
 
-Note this is only for golang programming practice but rather than
+Note this is only for golang programming practice but other than
 the formal software launches, thus if possible, more testing on 
 each container or structure is needed before any commercial usage.
 
@@ -31,6 +31,10 @@ each container or structure is needed before any commercial usage.
 Recommended go version > = 1.9
 
 $ go get github.com/qbs376yy/container/src/[container]
+
+or
+
+$ git clone https://github.com/qbs376yy/container.git
 
 
 import (
