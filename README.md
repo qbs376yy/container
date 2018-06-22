@@ -5,7 +5,8 @@
 # Description
 
 The Go Container is an extension with a bunch of packages
-like single list, dict, list, stack...which will provide much 
+e.g: list, dict, synchronized map, stack...Other than invention
+of new wheels, these packages will definitely provide much
 more feasibility for data storage and management than the few 
 packages that are already present in the src of golang today.
 Most likely the underlying operations towards these containers
